@@ -1,32 +1,50 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
 
-// ページコンポーネントをインポートする
-import PhotoList from './pages/PhotoList.vue'
-import Login from './pages/Login.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
 
-// VueRouterプラグインを使用する
-// これによって<RouterView />コンポーネントなどを使うことができる
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-// パスとコンポーネントのマッピング
-const routes = [
-	{
-		path: '/',
-		component: PhotoList
-	},
-	{
-		path: '/login',
-		component: Login
-	}
-]
+import login from "./components/login.vue";
+import about from "./components/about.vue";
 
-// VueRouterインスタンスを作成する
 const router = new VueRouter({
-	mode: 'history', // ★ 追加
-	routes
-})
+	mode: "history",
+	routes: [
+		{
+			path: "/login",
+			name: "login",
+			component: login,
+			meta: { guestOnly: true }
+		},
+		{
+			path: "/about",
+			name: "about",
+			component: about,
+			meta: { authOnly: true }
+		}
+	]
+});
 
-// VueRouterインスタンスをエクスポートする
-// app.jsでインポートするため
-export default router
+function isLoggedIn() {
+	return localStorage.getItem("auth");
+}
+
+router.beforeEach((to, from, next) => {
+	if (to.matched.some(record => record.meta.authOnly)) {
+		if (!isLoggedIn()) {
+			next("/login");
+		} else {
+			next();
+		}
+	} else if (to.matched.some(record => record.meta.guestOnly)) {
+		if (isLoggedIn()) {
+			next("/about");
+		} else {
+			next();
+		}
+	} else {
+		next();
+	}
+});
+
+export default router;

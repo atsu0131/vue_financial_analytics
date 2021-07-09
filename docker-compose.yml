@@ -49,8 +49,8 @@ services:
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=db
-      - PMA_USER=docker
-      - PMA_PASSWORD=docker
+      - PMA_USER=${DB_USER}
+      - PMA_PASSWORD=${DB_PASSWORD}
     links:
       - db
     ports:
